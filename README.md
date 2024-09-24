@@ -14,4 +14,5 @@ I'm aware of the double-typing issue with the build inputs and am working on it.
 
 All features persist even after page reload. Configuration is saved to localstorage.
 
+# Demo Video
 [![Demo](/thumbnail.png)](https://pub-8d5fbffb335042f69777fb9c968cf9a3.r2.dev/diep_mod_menu_demo.mp4)
