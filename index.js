@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Diep.io Mod Menu
 // @namespace    http://tampermonkey.net/
-// @version      2.2
+// @version      2.3
 // @homepage     https://github.com/x032205/diep_mod_menu
 // @description  Loop upgrade custom builds, render aim line, render factory guide circle.
 // @author       https://github.com/x032205
@@ -67,6 +67,26 @@ const presets = [
   display_panel.classList.add("inner_panel");
   panel.appendChild(display_panel);
 
+  // Auto Respawn
+  const auto_respawn = document.createElement("div");
+  auto_respawn.classList.add("view-option");
+
+  const auto_respawn_text = document.createElement("span");
+  auto_respawn_text.textContent = "Auto Respawn";
+
+  const auto_respawn_label = document.createElement("label");
+  auto_respawn_label.classList.add("switch");
+
+  const auto_respawn_toggle = document.createElement("input");
+  auto_respawn_toggle.setAttribute("type", "checkbox");
+  auto_respawn_label.appendChild(auto_respawn_toggle);
+
+  const auto_respawn_div = document.createElement("div");
+  auto_respawn_label.appendChild(auto_respawn_div);
+  auto_respawn.appendChild(auto_respawn_label);
+  auto_respawn.appendChild(auto_respawn_text);
+
+  // Aim Line
   const view_line = document.createElement("div");
   view_line.classList.add("view-option");
 
@@ -85,6 +105,7 @@ const presets = [
   view_line.appendChild(view_line_label);
   view_line.appendChild(view_line_text);
 
+  // Factory Circle
   const view_circle = document.createElement("div");
   view_circle.classList.add("view-option");
 
@@ -102,6 +123,121 @@ const presets = [
   view_circle_label.appendChild(view_circle_div);
   view_circle.appendChild(view_circle_label);
   view_circle.appendChild(view_circle_text);
+
+  // Render Collisions
+  const render_collisions = document.createElement("div");
+  render_collisions.classList.add("view-option");
+
+  const render_collisions_text = document.createElement("span");
+  render_collisions_text.textContent = "Render Collisions";
+
+  const render_collisions_label = document.createElement("label");
+  render_collisions_label.classList.add("switch");
+
+  const render_collisions_toggle = document.createElement("input");
+  render_collisions_toggle.setAttribute("type", "checkbox");
+  render_collisions_label.appendChild(render_collisions_toggle);
+
+  const render_collisions_div = document.createElement("div");
+  render_collisions_label.appendChild(render_collisions_div);
+  render_collisions.appendChild(render_collisions_label);
+  render_collisions.appendChild(render_collisions_text);
+
+  render_collisions_toggle.addEventListener("change", function () {
+    if (render_collisions_toggle.checked) {
+      input.execute("ren_debug_collisions true");
+    } else {
+      input.execute("ren_debug_collisions false");
+    }
+    localStorage.setItem(
+      "mm_render_collisions",
+      render_collisions_toggle.checked,
+    );
+  });
+
+  // Render FPS
+  const render_fps = document.createElement("div");
+  render_fps.classList.add("view-option");
+
+  const render_fps_text = document.createElement("span");
+  render_fps_text.textContent = "Render FPS";
+
+  const render_fps_label = document.createElement("label");
+  render_fps_label.classList.add("switch");
+
+  const render_fps_toggle = document.createElement("input");
+  render_fps_toggle.setAttribute("type", "checkbox");
+  render_fps_label.appendChild(render_fps_toggle);
+
+  const render_fps_div = document.createElement("div");
+  render_fps_label.appendChild(render_fps_div);
+  render_fps.appendChild(render_fps_label);
+  render_fps.appendChild(render_fps_text);
+
+  render_fps_toggle.addEventListener("change", function () {
+    if (render_fps_toggle.checked) {
+      input.execute("ren_fps true");
+    } else {
+      input.execute("ren_fps false");
+    }
+    localStorage.setItem("mm_render_fps", render_fps_toggle.checked);
+  });
+
+  // Render Raw Health Values
+  const render_rhw = document.createElement("div");
+  render_rhw.classList.add("view-option");
+
+  const render_rhw_text = document.createElement("span");
+  render_rhw_text.textContent = "Render Raw Health Values";
+
+  const render_rhw_label = document.createElement("label");
+  render_rhw_label.classList.add("switch");
+
+  const render_rhw_toggle = document.createElement("input");
+  render_rhw_toggle.setAttribute("type", "checkbox");
+  render_rhw_label.appendChild(render_rhw_toggle);
+
+  const render_rhw_div = document.createElement("div");
+  render_rhw_label.appendChild(render_rhw_div);
+  render_rhw.appendChild(render_rhw_label);
+  render_rhw.appendChild(render_rhw_text);
+
+  render_rhw_toggle.addEventListener("change", function () {
+    if (render_rhw_toggle.checked) {
+      input.execute("ren_raw_health_values true");
+    } else {
+      input.execute("ren_raw_health_values false");
+    }
+    localStorage.setItem("mm_render_raw_health", render_rhw_toggle.checked);
+  });
+
+  // Hide UI
+  const hide_ui = document.createElement("div");
+  hide_ui.classList.add("view-option");
+
+  const hide_ui_text = document.createElement("span");
+  hide_ui_text.textContent = "Hide Game UI";
+
+  const hide_ui_label = document.createElement("label");
+  hide_ui_label.classList.add("switch");
+
+  const hide_ui_toggle = document.createElement("input");
+  hide_ui_toggle.setAttribute("type", "checkbox");
+  hide_ui_label.appendChild(hide_ui_toggle);
+
+  const hide_ui_div = document.createElement("div");
+  hide_ui_label.appendChild(hide_ui_div);
+  hide_ui.appendChild(hide_ui_label);
+  hide_ui.appendChild(hide_ui_text);
+
+  hide_ui_toggle.addEventListener("change", function () {
+    if (hide_ui_toggle.checked) {
+      input.execute("ren_ui false");
+    } else {
+      input.execute("ren_ui true");
+    }
+    localStorage.setItem("mm_hide_ui", hide_ui_toggle.checked);
+  });
 
   // Visual Tab
   const visual_tab = document.createElement("button");
@@ -125,8 +261,13 @@ const presets = [
 
   visual_tab.onclick = function () {
     display_panel.innerHTML = ``;
+    display_panel.appendChild(auto_respawn);
     display_panel.appendChild(view_line);
     display_panel.appendChild(view_circle);
+    display_panel.appendChild(render_collisions);
+    display_panel.appendChild(render_fps);
+    display_panel.appendChild(render_rhw);
+    display_panel.appendChild(hide_ui);
     setActiveTab(visual_tab);
   };
 
@@ -145,7 +286,7 @@ const presets = [
     if (au_input.value.length > 33) {
       au_input.value = au_input.value.slice(0, 33);
     }
-    localStorage.setItem("mm_build", au_input.value);
+    localStorage.setItem("diepModMenuBuild", au_input.value);
   });
 
   const au_autoset = document.createElement("div");
@@ -165,6 +306,10 @@ const presets = [
   au_autoset_label.appendChild(au_autoset_div);
   au_autoset.appendChild(au_autoset_label);
   au_autoset.appendChild(au_autoset_text);
+
+  au_autoset_toggle.addEventListener("change", function () {
+    localStorage.setItem("mm_keep_build_on_spawn", au_autoset_toggle.checked);
+  });
 
   // Presets
   const au_presets_label = document.createElement("span");
@@ -246,15 +391,12 @@ const presets = [
 
   const style = document.createElement("style");
   style.textContent = `
-    * {
-      font-family: 'Inter', sans-serif;
-      color: #EEEEEE;
-      font-size: 16px;
-    }
-
     code { font-family: monospace; }
 
     #panel {
+      font-family: 'Inter', sans-serif;
+      color: #EEEEEE;
+      font-size: 16px;
       display: flex;
       flex-direction: row;
       max-width: 600px;
@@ -347,6 +489,7 @@ const presets = [
     }
 
     .button {
+      color: #EEEEEE;
       background: hsla(0, 0%, 20%, 0.5);
       border: none;
       border-radius: 4px;
@@ -393,6 +536,7 @@ const presets = [
     }
 
     .custom-input {
+      color: #EEEEEE;
       background: hsla(0, 0%, 10%, 0.7);
       border: 1px solid hsla(0, 0%, 100%, 0.1);
       border-radius: 4px;
@@ -489,6 +633,8 @@ const presets = [
   document.body.appendChild(canvas);
   const ctx = canvas.getContext("2d");
 
+  let lastRun = 0;
+
   function draw() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
@@ -525,12 +671,71 @@ const presets = [
       ctx.stroke();
     }
 
-    if (au_autoset_toggle.checked) {
-      input.execute("game_stats_build " + au_input.value);
+    // Functions that run at a 3 second cooldown
+    if (Date.now() - lastRun >= 1000) {
+      if (auto_respawn_toggle.checked) {
+        input.execute("game_spawn");
+      }
+
+      if (au_autoset_toggle.checked) {
+        input.execute("game_stats_build " + au_input.value);
+      }
+
+      lastRun = Date.now();
     }
+
     requestAnimationFrame(draw);
   }
   draw();
 
+  // Load saved toggle states
+  auto_respawn_toggle.checked =
+    localStorage.getItem("mm_auto_respawn") === "true";
+  view_line_toggle.checked = localStorage.getItem("mm_view_line") === "true";
+  view_circle_toggle.checked =
+    localStorage.getItem("mm_view_circle") === "true";
+  au_autoset_toggle.checked =
+    localStorage.getItem("mm_keep_build_on_spawn") === "true";
+
+  // Load + execute toggle states
+  render_collisions_toggle.checked =
+    localStorage.getItem("mm_render_collisions") === "true";
+
+  render_fps_toggle.checked = localStorage.getItem("mm_render_fps") === "true";
+
+  render_rhw_toggle.checked =
+    localStorage.getItem("mm_render_raw_health") === "true";
+
+  hide_ui_toggle.checked = localStorage.getItem("mm_hide_ui") === "true";
+
+  // Add event listeners to save toggle states
+  auto_respawn_toggle.addEventListener("change", function () {
+    localStorage.setItem("mm_auto_respawn", auto_respawn_toggle.checked);
+  });
+  view_line_toggle.addEventListener("change", function () {
+    localStorage.setItem("mm_view_line", view_line_toggle.checked);
+  });
+  view_circle_toggle.addEventListener("change", function () {
+    localStorage.setItem("mm_view_circle", view_circle_toggle.checked);
+  });
+
   visual_tab.click();
+
+  setTimeout(() => {
+    if (input) {
+      if (render_collisions_toggle.checked) {
+        input.execute("ren_debug_collisions true");
+      }
+
+      if (render_fps_toggle.checked) {
+        input.execute("ren_fps true");
+      }
+      if (render_rhw_toggle.checked) {
+        input.execute("ren_raw_health_values true");
+      }
+      if (hide_ui_toggle.checked) {
+        input.execute("ren_ui false");
+      }
+    }
+  }, 300);
 })();

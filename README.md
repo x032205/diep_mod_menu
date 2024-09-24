@@ -5,12 +5,13 @@ I play this game like once or twice a year randomly, so this project will not be
 I'm aware of the double-typing issue with the build inputs and am working on it.
 
 ## Features
-- Type custom builds into a text input
-- Have non-stop build pre-setting, even on respawn
-- Visuals such as aim line and factory guide circle
+- Build presets
+- Custom build codes
+- Keep builds on respawn
+- Visuals such as aim line, factory circle, fps, collisions, health values
+- Auto respawn
+- Hide UI
 
-![tab_1](/assets/tab_1.png)
+All features persist even after page reload. Configuration is saved to localstorage.
 
-![tab_2](/assets/tab_2.png)
-
-![lines](/assets/lines.png)
+[![Demo](/thumbnail.png)](/demo.mp4)
