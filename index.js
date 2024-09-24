@@ -1,9 +1,9 @@
 // ==UserScript==
-// @name         Diep.io x03 Mod Menu
+// @name         Diep.io Mod Menu
 // @namespace    http://tampermonkey.net/
-// @version      1.1
+// @version      2.0
 // @homepage     https://github.com/x032205/diep_mod_menu
-// @description  Loop upgrade custom builds, render aim line, render factory guide circle, and more.
+// @description  Loop upgrade custom builds, render aim line, render factory guide circle.
 // @author       https://github.com/x032205
 // @match        https://diep.io/
 // @grant        none
@@ -13,46 +13,39 @@
 (function () {
   "use strict";
 
-  const main_panel = document.createElement("div");
-  main_panel.id = "main_panel";
+  const backdrop = document.createElement("div");
+  backdrop.id = "backdrop";
 
-  const anchor = document.createElement("a");
-  anchor.id = "anchor";
-  anchor.style.zIndex = "1000";
+  const toggle_text = document.createElement("code");
+  toggle_text.classList.add("watermark");
+  toggle_text.textContent = "Diep Mod Menu | Press [R] to toggle";
 
-  const header = document.createElement("h1");
-  header.textContent = "x03 Mod Menu | Toggle: [R]";
-  anchor.appendChild(header);
+  backdrop.appendChild(toggle_text);
 
-  const holder_panel = document.createElement("div");
-  holder_panel.id = "holder_panel";
-  anchor.appendChild(holder_panel);
+  const panel = document.createElement("div");
+  panel.id = "panel";
 
-  const side_panel = document.createElement("div");
-  side_panel.classList.add("panel_1");
-  holder_panel.appendChild(side_panel);
+  const side_panel = document.createElement("nav");
+  panel.appendChild(side_panel);
+
+  const separator = document.createElement("div");
+  separator.classList.add("separator");
+  panel.appendChild(separator);
 
   const display_panel = document.createElement("div");
-  display_panel.classList.add("panel_1");
-  holder_panel.appendChild(display_panel);
-  display_panel.style.width = "100%";
-  display_panel.style.marginLeft = "4px";
-  display_panel.innerHTML = `<h2>select a tab</h2>`;
+  display_panel.classList.add("inner_panel");
+  panel.appendChild(display_panel);
 
   const view_line = document.createElement("div");
-  view_line.style.textAlign = "left";
-  view_line.style.alignItems = "center";
-  view_line.style.height = "33px";
-  view_line.style.display = "flex";
+  view_line.classList.add("view-option");
 
   const view_line_text = document.createElement("span");
-  view_line_text.style.fontWeight = "bold";
-  view_line_text.textContent = "View Aim Line";
+  view_line_text.textContent = "Aim line";
 
   const view_line_label = document.createElement("label");
   view_line_label.classList.add("switch");
 
-  const view_line_toggle = document.createElement("INPUT");
+  const view_line_toggle = document.createElement("input");
   view_line_toggle.setAttribute("type", "checkbox");
   view_line_label.appendChild(view_line_toggle);
 
@@ -62,19 +55,15 @@
   view_line.appendChild(view_line_text);
 
   const view_circle = document.createElement("div");
-  view_circle.style.textAlign = "left";
-  view_circle.style.alignItems = "center";
-  view_circle.style.height = "33px";
-  view_circle.style.display = "flex";
+  view_circle.classList.add("view-option");
 
   const view_circle_text = document.createElement("span");
-  view_circle_text.style.fontWeight = "bold";
-  view_circle_text.textContent = "View Factory Circle";
+  view_circle_text.textContent = "Factory circle";
 
   const view_circle_label = document.createElement("label");
   view_circle_label.classList.add("switch");
 
-  const view_circle_toggle = document.createElement("INPUT");
+  const view_circle_toggle = document.createElement("input");
   view_circle_toggle.setAttribute("type", "checkbox");
   view_circle_label.appendChild(view_circle_toggle);
 
@@ -83,53 +72,54 @@
   view_circle.appendChild(view_circle_label);
   view_circle.appendChild(view_circle_text);
 
+  // Visual Tab
   const visual_tab = document.createElement("button");
-  visual_tab.classList.add("tab_button");
+  visual_tab.classList.add("tab_button", "active");
   side_panel.appendChild(visual_tab);
-  visual_tab.textContent = "Visual";
+
+  const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+  svg.setAttribute("width", "32");
+  svg.setAttribute("height", "32");
+  svg.setAttribute("viewBox", "0 0 24 24");
+  svg.setAttribute("fill", "none");
+  svg.setAttribute("stroke", "#BBBBBB");
+  svg.setAttribute("stroke-width", "2.5");
+  svg.setAttribute("stroke-linecap", "round");
+  svg.setAttribute("stroke-linejoin", "round");
+
+  svg.innerHTML =
+    '<path d="M2.062 12.348a1 1 0 0 1 0-.696 10.75 10.75 0 0 1 19.876 0 1 1 0 0 1 0 .696 10.75 10.75 0 0 1-19.876 0"/><circle cx="12" cy="12" r="3"/>';
+
+  visual_tab.appendChild(svg);
+
   visual_tab.onclick = function () {
     display_panel.innerHTML = ``;
     display_panel.appendChild(view_line);
     display_panel.appendChild(view_circle);
+    setActiveTab(visual_tab);
   };
 
   const au_label = document.createElement("span");
+  au_label.classList.add("subheading");
   au_label.textContent = "Custom Build";
-  au_label.style.fontWeight = "bold";
 
-  const au_input = document.createElement("INPUT");
+  const au_input = document.createElement("input");
   au_input.ariaReadOnly = "true";
   au_input.setAttribute("type", "text");
-  au_input.style.borderColor = "rgb(20 20 20)";
-  au_input.style.borderRadius = "5px";
-  au_input.style.marginTop = "4px";
-  au_input.style.outline = "none";
-  au_input.style.color = "white";
+  au_input.classList.add("custom-input");
   au_input.placeholder = "000000000000000000000000000000000";
-  au_input.style.backgroundColor = "rgb(25 25 25)";
-
-  const au_set_button = document.createElement("button");
-  au_set_button.classList.add("button");
-  au_set_button.textContent = "Set Build";
-
-  au_set_button.onclick = function () {
-    input.execute("game_stats_build " + au_input.value);
-  };
+  au_input.maxLength = 33;
 
   const au_autoset = document.createElement("div");
-  au_autoset.style.textAlign = "left";
-  au_autoset.style.alignItems = "center";
-  au_autoset.style.height = "33px";
-  au_autoset.style.display = "flex";
+  au_autoset.classList.add("view-option");
 
   const au_autoset_text = document.createElement("span");
-  au_autoset_text.style.fontWeight = "bold";
-  au_autoset_text.textContent = "Keep Build on Respawn";
+  au_autoset_text.textContent = "Auto-build enabled";
 
   const au_autoset_label = document.createElement("label");
   au_autoset_label.classList.add("switch");
 
-  const au_autoset_toggle = document.createElement("INPUT");
+  const au_autoset_toggle = document.createElement("input");
   au_autoset_toggle.setAttribute("type", "checkbox");
   au_autoset_label.appendChild(au_autoset_toggle);
 
@@ -138,78 +128,108 @@
   au_autoset.appendChild(au_autoset_label);
   au_autoset.appendChild(au_autoset_text);
 
+  // Auto Upgrade Tab
   const auto_upgrades_tab = document.createElement("button");
   auto_upgrades_tab.classList.add("tab_button");
   side_panel.appendChild(auto_upgrades_tab);
-  auto_upgrades_tab.textContent = "Auto Upgrades";
+
+  const au_svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+  au_svg.setAttribute("width", "32");
+  au_svg.setAttribute("height", "32");
+  au_svg.setAttribute("viewBox", "0 0 24 24");
+  au_svg.setAttribute("fill", "none");
+  au_svg.setAttribute("stroke", "#BBBBBB");
+  au_svg.setAttribute("stroke-width", "2.5");
+  au_svg.setAttribute("stroke-linecap", "round");
+  au_svg.setAttribute("stroke-linejoin", "round");
+
+  au_svg.innerHTML =
+    '<path d="M12 2a10 10 0 0 1 7.38 16.75"/><path d="m16 12-4-4-4 4"/><path d="M12 16V8"/><path d="M2.5 8.875a10 10 0 0 0-.5 3"/><path d="M2.83 16a10 10 0 0 0 2.43 3.4"/><path d="M4.636 5.235a10 10 0 0 1 .891-.857"/><path d="M8.644 21.42a10 10 0 0 0 7.631-.38"/>';
+
+  auto_upgrades_tab.appendChild(au_svg);
+
   auto_upgrades_tab.onclick = function () {
     display_panel.innerHTML = ``;
-    display_panel.style.textAlign = "left";
     display_panel.appendChild(au_label);
     display_panel.appendChild(au_input);
-    display_panel.appendChild(au_set_button);
     display_panel.appendChild(au_autoset);
+    setActiveTab(auto_upgrades_tab);
   };
 
   const credits_tab = document.createElement("button");
   credits_tab.classList.add("tab_button");
   side_panel.appendChild(credits_tab);
-  credits_tab.textContent = "Credits";
-  credits_tab.onclick = function () {
-    display_panel.style.textAlign = "center";
-    display_panel.innerHTML = `
-    <br>
-    <h3>Mod menu made by x03</h3>
-    <p>Discord: <span style="color: rgb(52 211 153)">@someplace</span></p>
-    <p>Github: <span style="color: rgb(52 211 153)">@x032205</span></p>
 
-    <style>
-    br {
-      margin-top: 30px;
-    }
-    p {
-      margin: 2px;
-      font-weight: bold;
-    }
-    </style>
-    `;
+  const credit_svg = document.createElementNS(
+    "http://www.w3.org/2000/svg",
+    "svg",
+  );
+  credit_svg.setAttribute("width", "32");
+  credit_svg.setAttribute("height", "32");
+  credit_svg.setAttribute("viewBox", "0 0 24 24");
+  credit_svg.setAttribute("fill", "none");
+  credit_svg.setAttribute("stroke", "#BBBBBB");
+  credit_svg.setAttribute("stroke-width", "2.5");
+  credit_svg.setAttribute("stroke-linecap", "round");
+  credit_svg.setAttribute("stroke-linejoin", "round");
+
+  credit_svg.innerHTML =
+    '<circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/>';
+
+  credits_tab.appendChild(credit_svg);
+
+  credits_tab.onclick = function () {
+    display_panel.innerHTML = `<span><span class="text-muted">Discord:</span> <code>@someplace</code></span>
+<span><span class="text-muted">Github:</span> <code>@x032205</code></span>`;
+    setActiveTab(credits_tab);
   };
 
   const style = document.createElement("style");
   style.textContent = `
-    #main_panel a {
-      position: absolute;
-      font-family: 'Outfit', sans-serif;
-      src: url('https://fonts.googleapis.com/css2?family=Outfit&display=swap');
+    * {
+      font-family: 'Inter', sans-serif;
+      color: #EEEEEE;
+      font-size: 16px;
     }
 
-    #anchor {
-      display: inline-flex;
-      flex-direction: column;
-      width: 600px;
-      height: 300px;
-      text-align: center;
-      top: 300px;
-      right: 50px;
-      padding: 0 7px 14px 7px;
-      color: white;
-      background: rgb(15 15 15);
-      border-radius: 7px;
-      border-style: solid;
-      border-width: 2px;
-      border-color: rgb(60 60 60);
-    }
+    code { font-family: monospace; }
 
-    #holder_panel {
-      display: inline-flex;
+    #panel {
+      display: flex;
       flex-direction: row;
+      max-width: 600px;
+      max-height: 400px;
+      width: 100%;
       height: 100%;
+      padding: 12px;
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      gap: 6px;
+      background: hsla(0, 0%, 10%, 0.7);
+      backdrop-filter: blur(7px);
+      -webkit-backdrop-filter: blur(7px);
+      border: 1px solid hsla(0, 0%, 100%, 0.1);
+      border-radius: 8px;
+      z-index: 10;
     }
 
-    h1 {
-      margin-top: 10px;
-      margin-bottom: 5px;
-      color: rgb(52 211 153);
+    .separator {
+      width: 1px;
+      height: 100%;
+      background-color: hsla(0, 0%, 100%, 0.1);
+    }
+
+    .switch {
+      display: inline-block;
+      font-size: 20px;
+      height: 1em;
+      width: 2em;
+      background: rgb(50, 50, 50);
+      border-radius: 1em;
+      margin-right: 10px;
+      cursor: pointer;
     }
 
     .switch input {
@@ -218,108 +238,109 @@
       cursor: pointer;
     }
 
-    .switch {
-      display: inline-block;
-      font-size: 20px;
-      height: 1em;
-      width: 2em;
-      background: rgb(50 50 50);
-      border-radius: 1em;
-      margin-right: 10px;
-      cursor: pointer;
-    }
-
     .switch div {
+      font-size: 20px;
       height: 1em;
       width: 1em;
       border-radius: 1em;
-      background: rgb(100 100 100);
-      -webkit-transition: all 100ms;
-      -moz-transition: all 100ms;
+      background: rgb(100, 100, 100);
       transition: all 100ms;
       cursor: pointer;
     }
 
     .switch input:checked + div {
-      -webkit-transform: translate3d(100%, 0, 0);
-      -moz-transform: translate3d(100%, 0, 0);
       transform: translate3d(100%, 0, 0);
-      background: rgb(40 200 140)
+      background: #EEEEEE;
     }
 
-    .panel_1 {
-      display: inline-flex;
+    nav {
+      display: flex;
       flex-direction: column;
-      padding: 4px;
-      width: fit-content;
-      height: 100%;
-      border-radius: 5px;
-      background: rgb(30 30 30);
-      white-space: nowrap;
+      gap: 6px;
     }
 
-    .button {
-      font-family: 'Outfit', sans-serif;
-      src: url('https://fonts.googleapis.com/css2?family=Outfit&display=swap');
-      font-weight: bold;
-      cursor: pointer;
-      font-size: 14px;
-      padding: 2px 4px 2px 4px;
-      margin-top: 2px;
-      margin-bottom: 2px;
-      color: white;
-      background: rgb(50 50 50);
-      border-radius: 3px;
-      border-style: solid;
-      border-width: 2px;
-      border-color: rgb(60 60 60);
-      transition-property: color, background-color, border-color, text-decoration-color, fill, stroke;
-      transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
-      transition-duration: 50ms;
+    .inner_panel {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      padding: 4px;
+      width: 100%;
+      margin-left: 4px;
     }
 
     .tab_button {
-      font-family: 'Outfit', sans-serif;
-      src: url('https://fonts.googleapis.com/css2?family=Outfit&display=swap');
-      font-weight: bold;
-      cursor: pointer;
-      font-size: 18px;
-      padding: 4px 8px 4px 8px;
-      margin-bottom: 4px;
-      color: white;
-      background: rgb(50 50 50);
-      border-radius: 3px;
-      border-style: solid;
-      border-width: 2px;
-      border-color: rgb(60 60 60);
-      transition-property: color, background-color, border-color, text-decoration-color, fill, stroke;
-      transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
-      transition-duration: 50ms;
+      display: flex;
+      width: 48px;
+      height: 48px;
+      justify-content: center;
+      align-items: center;
+      background: hsla(0, 0%, 20%, 0.5);
+      border-radius: 4px;
+      border: none;
+      transition: all 100ms cubic-bezier(0.4, 0, 0.2, 1);
     }
 
-    .tab_button:hover {
-      background: rgb(60 60 60);
-      border-color: rgb(80 80 80);
+    .tab_button:hover,
+    .tab_button.active {
+      background: hsla(0, 0%, 40%, 0.5);
     }
 
-    .button:hover {
-      background: rgb(60 60 60);
-      border-color: rgb(80 80 80);
+    #backdrop {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.5);
+      z-index: 9;
+      backdrop-filter: blur(5px);
+      -webkit-backdrop-filter: blur(5px);
     }
 
-    .tab_button:focus {
-      background: rgb(50 60 50);
-      border-color: rgb(50 100 50);
+    .watermark {
+      position: fixed;
+      top: 8px;
+      left: 50%;
+      transform: translateX(-50%);
     }
+
+    .subheading { font-weight: 600; }
+
+    .view-option {
+      text-align: left;
+      align-items: center;
+      height: 28px;
+      display: flex;
+    }
+
+    .custom-input {
+      background: hsla(0, 0%, 10%, 0.7);
+      border: 1px solid hsla(0, 0%, 100%, 0.1);
+      border-radius: 4px;
+      padding: 6px;
+      outline: none;
+    }
+
+    .text-muted { color: #BBBBBB; }
   `;
 
-  main_panel.appendChild(anchor);
-  document.body.appendChild(main_panel);
+  backdrop.appendChild(panel);
+  document.body.appendChild(backdrop);
   document.head.appendChild(style);
 
-  function ToggleDisplay(element_id) {
-    var element = document.getElementById(element_id);
-    element.style.display = element.style.display === "none" ? "block" : "none";
+  function toggleDisplay(elementId) {
+    const element = document.getElementById(elementId);
+    const backdrop = document.getElementById("backdrop");
+    const isHidden = element.style.display === "none";
+    element.style.display = isHidden ? "block" : "none";
+    backdrop.style.display = isHidden ? "block" : "none";
+  }
+
+  function setActiveTab(activeTab) {
+    [visual_tab, auto_upgrades_tab, credits_tab].forEach((tab) =>
+      tab.classList.remove("active"),
+    );
+    activeTab.classList.add("active");
   }
 
   let X, Y, x, y;
@@ -328,56 +349,51 @@
 
   document.body.onkeyup = function (ctx) {
     if (ctx.keyCode === 82) {
-      ToggleDisplay("main_panel");
-    } else if (
-      document.activeElement === au_input &&
-      parseInt(ctx.key) >= 1 &&
-      parseInt(ctx.key) <= 8
-    ) {
-      au_input.value = au_input.value + ctx.key;
-    } else if (document.activeElement === au_input && ctx.keyCode === 8) {
-      au_input.value = au_input.value.slice(0, -1);
+      toggleDisplay("backdrop");
+    } else if (document.activeElement === au_input) {
+      const key = parseInt(ctx.key);
+      if (key >= 1 && key <= 8) {
+        au_input.value += ctx.key;
+      } else if (ctx.keyCode === 8) {
+        au_input.value = au_input.value.slice(0, -1);
+      }
     }
   };
 
-  document.onmousemove = function (event) {
+  document.onmousemove = (event) => {
     x = event.clientX;
     y = event.clientY;
   };
-
-  document.onmousedown = function (e) {
-    if (e.button == 2) {
-      Z = true;
-    }
+  document.onmousedown = (e) => {
+    if (e.button === 2) Z = true;
   };
-
-  document.onmouseup = function (e) {
-    if (e.button == 2) {
-      Z = false;
-    }
+  document.onmouseup = (e) => {
+    if (e.button === 2) Z = false;
   };
 
   const canvas = document.createElement("canvas");
-  canvas.style.zIndex = "1001";
+  canvas.style.zIndex = "11";
+  canvas.style.position = "absolute";
+  canvas.style.top = "0px";
+  canvas.style.left = "0px";
+  canvas.style.pointerEvents = "none";
 
-  function get_Radius() {
+  function getRadius() {
     X = window.innerWidth / 2;
     Y = window.innerHeight / 2;
     canvas.width = window.innerWidth;
     canvas.height = window.innerHeight;
 
-    radius[0] = window.innerWidth * 0.17681239669;
-    radius[1] = window.innerWidth * 0.06545454545;
-    radius[2] = window.innerWidth * 0.16751239669;
-    radius[3] = window.innerWidth * 0.36;
+    radius = [
+      window.innerWidth * 0.17681239669,
+      window.innerWidth * 0.06545454545,
+      window.innerWidth * 0.16751239669,
+      window.innerWidth * 0.36,
+    ];
   }
-  get_Radius();
-  window.addEventListener("resize", get_Radius);
 
-  canvas.style.position = "absolute";
-  canvas.style.top = "0px";
-  canvas.style.left = "0px";
-  canvas.style.pointerEvents = "none";
+  getRadius();
+  window.addEventListener("resize", getRadius);
 
   document.body.appendChild(canvas);
   const ctx = canvas.getContext("2d");
@@ -403,9 +419,10 @@
 
     if (view_circle_toggle.checked) {
       ctx.lineWidth = 2;
+      ctx.strokeStyle = "rgba(0, 0, 0, 0.7)";
+
       ctx.beginPath();
       ctx.arc(X, Y, radius[3], 0, 2 * Math.PI);
-      ctx.strokeStyle = "rgba(0, 0, 0, 0.7)";
       ctx.stroke();
 
       ctx.beginPath();
@@ -413,11 +430,7 @@
       ctx.stroke();
 
       ctx.beginPath();
-      if (Z) {
-        ctx.arc(x, y, radius[0], 0, 2 * Math.PI);
-      } else {
-        ctx.arc(x, y, radius[2], 0, 2 * Math.PI);
-      }
+      ctx.arc(x, y, Z ? radius[0] : radius[2], 0, 2 * Math.PI);
       ctx.stroke();
     }
 
@@ -427,4 +440,6 @@
     requestAnimationFrame(draw);
   }
   draw();
+
+  visual_tab.click();
 })();
