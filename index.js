@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Diep.io Mod Menu
 // @namespace    http://tampermonkey.net/
-// @version      2.1
+// @version      2.2
 // @homepage     https://github.com/x032205/diep_mod_menu
 // @description  Loop upgrade custom builds, render aim line, render factory guide circle.
 // @author       https://github.com/x032205
@@ -152,7 +152,7 @@ const presets = [
   au_autoset.classList.add("view-option");
 
   const au_autoset_text = document.createElement("span");
-  au_autoset_text.textContent = "Auto-build enabled";
+  au_autoset_text.textContent = "Keep build on respawn";
 
   const au_autoset_label = document.createElement("label");
   au_autoset_label.classList.add("switch");
