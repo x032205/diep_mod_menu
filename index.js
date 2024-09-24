@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Diep.io Mod Menu
 // @namespace    http://tampermonkey.net/
-// @version      2.0
+// @version      2.1
 // @homepage     https://github.com/x032205/diep_mod_menu
 // @description  Loop upgrade custom builds, render aim line, render factory guide circle.
 // @author       https://github.com/x032205
@@ -9,6 +9,37 @@
 // @grant        none
 // @license      MIT
 // ==/UserScript==
+
+const presets = [
+  {
+    name: "Rammer (triangles & annihilator) [ 5 / 7 / 7 / 0 / 0 / 0 / 7 / 7 ]",
+    build: "123123123123123888882382387777777",
+  },
+  {
+    name: "Bullet Umbrella (triangles) [ 0 / 1 / 2 / 2 / 7 / 7 / 7 / 7 ]",
+    build: "567445675675675675675678888888233",
+  },
+  {
+    name: "Glass Cannon (spreadshot, factory, etc) [ 0 / 0 / 0 / 6 / 7 / 7 / 7 / 6 ]",
+    build: "567456747654765476547566888821212",
+  },
+  {
+    name: "Balanced (overlord, fighter) [ 3 / 3 / 3 / 5 / 5 / 5 / 5 / 4 ]",
+    build: "567445674567456745671238123812388",
+  },
+  {
+    name: "The 1M Overlord [ 2 / 3 / 0 / 7 / 7 / 7 / 0 / 7 ]",
+    build: "564456456456456888456456888822112",
+  },
+  {
+    name: "Balanced Factory [ 2 / 3 / 0 / 5 / 6 / 7 / 6 / 4 ]",
+    build: "567456747654765476547566888821212",
+  },
+  {
+    name: "Armor (penta, rocketeer, trappers) [ 0 / 6 / 6 / 0 / 7 / 7 / 7 / 0 ]",
+    build: "567567567567567567567232323232323",
+  },
+];
 
 (function () {
   "use strict";
@@ -105,10 +136,17 @@
 
   const au_input = document.createElement("input");
   au_input.ariaReadOnly = "true";
-  au_input.setAttribute("type", "text");
+  au_input.setAttribute("type", "number");
   au_input.classList.add("custom-input");
   au_input.placeholder = "000000000000000000000000000000000";
-  au_input.maxLength = 33;
+  au_input.value = localStorage.getItem("diepModMenuBuild") || "";
+
+  au_input.addEventListener("input", function () {
+    if (au_input.value.length > 33) {
+      au_input.value = au_input.value.slice(0, 33);
+    }
+    localStorage.setItem("mm_build", au_input.value);
+  });
 
   const au_autoset = document.createElement("div");
   au_autoset.classList.add("view-option");
@@ -127,6 +165,26 @@
   au_autoset_label.appendChild(au_autoset_div);
   au_autoset.appendChild(au_autoset_label);
   au_autoset.appendChild(au_autoset_text);
+
+  // Presets
+  const au_presets_label = document.createElement("span");
+  au_presets_label.classList.add("subheading");
+  au_presets_label.textContent = "Presets";
+
+  const preset_panel = document.createElement("div");
+  preset_panel.classList.add("preset-panel");
+
+  presets.forEach((preset) => {
+    const presetButton = document.createElement("button");
+    presetButton.textContent = preset.name;
+    presetButton.classList.add("button");
+    presetButton.onclick = function () {
+      au_input.value = preset.build;
+      localStorage.setItem("diepModMenuBuild", preset.build);
+      input.execute("game_stats_build " + preset.build);
+    };
+    preset_panel.appendChild(presetButton);
+  });
 
   // Auto Upgrade Tab
   const auto_upgrades_tab = document.createElement("button");
@@ -153,6 +211,8 @@
     display_panel.appendChild(au_label);
     display_panel.appendChild(au_input);
     display_panel.appendChild(au_autoset);
+    display_panel.appendChild(au_presets_label);
+    display_panel.appendChild(preset_panel);
     setActiveTab(auto_upgrades_tab);
   };
 
@@ -280,6 +340,25 @@
       transition: all 100ms cubic-bezier(0.4, 0, 0.2, 1);
     }
 
+    .preset-panel {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+
+    .button {
+      background: hsla(0, 0%, 20%, 0.5);
+      border: none;
+      border-radius: 4px;
+      padding: 6px 12px;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    .button:hover {
+      background: hsla(0, 0%, 30%, 0.5);
+    }
+
     .tab_button:hover,
     .tab_button.active {
       background: hsla(0, 0%, 40%, 0.5);
@@ -322,6 +401,16 @@
     }
 
     .text-muted { color: #BBBBBB; }
+
+    input::-webkit-outer-spin-button,
+    input::-webkit-inner-spin-button {
+      -webkit-appearance: none;
+      margin: 0;
+    }
+
+    input[type=number] {
+      -moz-appearance: textfield;
+    }
   `;
 
   backdrop.appendChild(panel);
@@ -354,8 +443,10 @@
       const key = parseInt(ctx.key);
       if (key >= 1 && key <= 8) {
         au_input.value += ctx.key;
+        localStorage.setItem("diepModMenuBuild", au_input.value);
       } else if (ctx.keyCode === 8) {
         au_input.value = au_input.value.slice(0, -1);
+        localStorage.setItem("diepModMenuBuild", au_input.value);
       }
     }
   };
