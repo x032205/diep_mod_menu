@@ -1,11 +1,11 @@
 // ==UserScript==
 // @name         Diep.io Mod Menu
 // @namespace    http://tampermonkey.net/
-// @version      2.3
+// @version      2.4
 // @homepage     https://github.com/x032205/diep_mod_menu
 // @description  Loop upgrade custom builds, render aim line, render factory guide circle.
 // @author       https://github.com/x032205
-// @match        https://diep.io/
+// @match        https://diep.io/*
 // @grant        none
 // @license      MIT
 // ==/UserScript==
