@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Diep.io Mod Menu
 // @namespace    http://tampermonkey.net/
-// @version      2.4
+// @version      2.5
 // @homepage     https://github.com/x032205/diep_mod_menu
 // @description  Loop upgrade custom builds, render aim line, render factory guide circle.
 // @author       https://github.com/x032205
@@ -72,7 +72,7 @@ const presets = [
   auto_respawn.classList.add("view-option");
 
   const auto_respawn_text = document.createElement("span");
-  auto_respawn_text.textContent = "Auto Respawn";
+  auto_respawn_text.textContent = "Auto Respawn (uses [X03] username)";
 
   const auto_respawn_label = document.createElement("label");
   auto_respawn_label.classList.add("switch");
@@ -384,7 +384,7 @@ const presets = [
   credits_tab.appendChild(credit_svg);
 
   credits_tab.onclick = function () {
-    display_panel.innerHTML = `<span><span class="text-muted">Discord:</span> <code>@someplace</code></span>
+    display_panel.innerHTML = `<span><span class="text-muted">Discord:</span> <code>@x03</code></span>
 <span><span class="text-muted">Github:</span> <code>@x032205</code></span>`;
     setActiveTab(credits_tab);
   };
@@ -674,7 +674,7 @@ const presets = [
     // Functions that run at a 3 second cooldown
     if (Date.now() - lastRun >= 1000) {
       if (auto_respawn_toggle.checked) {
-        input.execute("game_spawn");
+        input.execute("game_spawn [X03]");
       }
 
       if (au_autoset_toggle.checked) {
